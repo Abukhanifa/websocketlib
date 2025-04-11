@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.library")
     alias(libs.plugins.kotlin.android)
@@ -29,12 +31,14 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
@@ -53,14 +57,42 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 }
 
+
+// Load local.properties
+val localProps = Properties().apply {
+    val localPropsFile = File(rootDir, "local.properties")
+    if (localPropsFile.exists()) {
+        load(localPropsFile.inputStream())
+    }
+}
+
+// Safely get username and password
+val mavenUsername: String = localProps.getProperty("mavenUsername") ?: "no-username"
+val mavenPassword: String = localProps.getProperty("mavenPassword") ?: "no-password"
+
+println(">>> MAVEN USERNAME: $mavenUsername")
+println(">>> MAVEN PASSWORD: $mavenPassword")
+
+// PUBLISHING CONFIG
 afterEvaluate {
+
     publishing {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
-                groupId = "com.github.Abukhanifa"
-                artifactId = "websocketlib"
-                version = "1.0.0"
+                groupId = "com.github.Abukhanifa" // GitHub username
+                artifactId = "websocketlib"        // Your library name
+                version = "1.0.0"                  // Version you want to publish
+            }
+        }
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/Abukhanifa/websocketlib")
+                credentials {
+                    username = mavenUsername
+                    password = mavenPassword
+                }
             }
         }
     }
