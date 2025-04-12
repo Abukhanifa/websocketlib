@@ -1,5 +1,8 @@
 import java.util.Properties
 
+include(":mainapplication")
+
+
 pluginManagement {
     repositories {
         google {
@@ -38,4 +41,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Lab2"
 include(":app")
+include(":mainapplication")
  
